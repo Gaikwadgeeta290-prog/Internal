@@ -1,0 +1,23 @@
+ATELIER NOIRE WEBSITE UPDATE
+
+Changes included:
+- Removed quotation/payment preference from the customer Build My Project form.
+- Removed payment milestone wording from the Services page.
+- Admin navigation now includes Conversion Analytics; no Quotations or Payments tab is included.
+- Added basic analytics_events table creation during backend startup and to schema.sql.
+- Added public page-view tracking and records successful contact/consultation submissions as conversion events.
+- Added admin analytics API with 30-day totals and a 7-day daily breakdown.
+- Admin project add/edit now supports title, category, location, year, cover image URL, secondary media/video URL, design style, and project story.
+- Projects created in the admin database can appear in the public portfolio and open a database-backed project detail view.
+- Added style, room type, location, year filters, sorting, and Load More to the portfolio.
+
+Important implementation notes:
+- Media fields accept publicly accessible HTTP/HTTPS URLs. This update does not implement binary file uploads or drag-and-drop ordering.
+- Analytics are basic event counts, not unique visitor analytics.
+- Configure backend/.env with valid MySQL/admin/email settings before running the backend.
+- Build and live MySQL integration tests could not be completed in this environment because dependency installation did not finish. Run npm install, npm run build, and npm run db:test locally before deployment.
+
+Run from project root in separate terminals:
+1) npm install
+2) npm run backend
+3) npm run dev
