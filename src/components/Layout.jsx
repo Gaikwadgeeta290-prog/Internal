@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, X, MessageSquare, Phone } from "lucide-react";
 
 const nav = [
   ["/", "Home"],
@@ -18,20 +18,19 @@ export function Reveal({
   children,
   delay = 0,
   className = "",
-  amount = 0.18,
+  amount = 0.1,
 }) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 52, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{
-        once: false,
+        once: true,
         amount,
-        margin: "-80px 0px -80px 0px",
       }}
       transition={{
-        duration: 0.9,
+        duration: 0.7,
         delay,
         ease,
       }}
@@ -46,8 +45,8 @@ export function Sequence({ children, className = "" }) {
     hidden: {},
     show: {
       transition: {
-        staggerChildren: 0.16,
-        delayChildren: 0.05,
+        staggerChildren: 0.12,
+        delayChildren: 0.04,
       },
     },
   };
@@ -55,15 +54,13 @@ export function Sequence({ children, className = "" }) {
   const item = {
     hidden: {
       opacity: 0,
-      y: 44,
-      filter: "blur(8px)",
+      y: 20,
     },
     show: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
-        duration: 0.78,
+        duration: 0.6,
         ease,
       },
     },
@@ -78,9 +75,8 @@ export function Sequence({ children, className = "" }) {
       initial="hidden"
       whileInView="show"
       viewport={{
-        once: false,
-        amount: 0.16,
-        margin: "-70px 0px -70px 0px",
+        once: true,
+        amount: 0.1,
       }}
     >
       {childrenArray.map((child, i) => (
@@ -159,12 +155,14 @@ export function Layout({ children }) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          entry.target.classList.toggle("is-visible", entry.isIntersecting);
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
         });
       },
       {
-        threshold: 0.12,
-        rootMargin: "0px 0px -12% 0px",
+        threshold: 0.05,
       }
     );
 
@@ -249,21 +247,18 @@ export function Layout({ children }) {
           className="route-stage"
           initial={{
             opacity: 0,
-            y: 18,
-            filter: "blur(5px)",
+            y: 10,
           }}
           animate={{
             opacity: 1,
             y: 0,
-            filter: "blur(0px)",
           }}
           exit={{
             opacity: 0,
-            y: -18,
-            filter: "blur(4px)",
+            y: -10,
           }}
           transition={{
-            duration: 0.55,
+            duration: 0.35,
             ease,
           }}
         >
@@ -271,43 +266,99 @@ export function Layout({ children }) {
         </motion.main>
       </AnimatePresence>
 
+      {/* Floating Quick Action Buttons */}
+      <div className="floating-actions" aria-label="Quick contact actions">
+        <a
+          href="https://wa.me/919876543210?text=Hi%20Atelier%20Noire%2C%20I%20would%20like%20to%20enquire%20about%20interior%20architecture%20and%20design%20services."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="float-btn float-whatsapp"
+          aria-label="Chat with studio on WhatsApp"
+        >
+          <MessageSquare size={19} />
+          <span className="float-badge">Chat with Studio</span>
+        </a>
+        <a
+          href="tel:+919876543210"
+          className="float-btn float-phone"
+          aria-label="Call studio"
+        >
+          <Phone size={18} />
+        </a>
+      </div>
+
       <footer>
-        <div className="footer-brand">
-          <div className="brand">
-            <span>AN</span>
-            <b>
-              ATELIER NOIRE
-              <small>INTERIORS & ARCHITECTURE</small>
-            </b>
+        <div className="footer-main">
+          <div className="footer-brand">
+            <Link to="/" className="brand">
+              <span>AN</span>
+              <b>
+                ATELIER NOIRE
+                <small>INTERIORS & ARCHITECTURE</small>
+              </b>
+            </Link>
+            <p className="footer-tagline">
+              Spaces with soul. Thoughtful interior architecture shaped by proportion, materiality and everyday ritual.
+            </p>
+            <div className="footer-direct-actions">
+              <Link to="/begin-project" className="pill light">
+                Start a consultation <ArrowUpRight size={13} />
+              </Link>
+            </div>
           </div>
-          <p>Spaces with soul. Designed around your life.</p>
+
+          <div className="footer-col">
+            <small>STUDIO LOCATIONS</small>
+            <p>
+              <strong>Mumbai Atelier</strong>
+              <br />
+              Worli & Bandra West
+            </p>
+            <p>
+              <strong>Pune & Goa</strong>
+              <br />
+              Koregaon Park · Panaji
+            </p>
+          </div>
+
+          <div className="footer-col">
+            <small>DIRECT INQUIRIES</small>
+            <p>
+              <a href="mailto:hello@ateliernoire.in" className="footer-link">
+                hello@ateliernoire.in
+              </a>
+              <br />
+              <a href="tel:+919876543210" className="footer-link">
+                +91 98765 43210
+              </a>
+            </p>
+            <p className="footer-hours">
+              Monday – Saturday
+              <br />
+              10:00 – 19:00 IST
+            </p>
+          </div>
+
+          <div className="footer-col">
+            <small>EXPLORE</small>
+            <div className="footer-nav-links">
+              <Link to="/portfolio">Selected Portfolio</Link>
+              <Link to="/services">Design Services</Link>
+              <Link to="/studio">Our Atelier</Link>
+              <Link to="/insights">Journal & Insights</Link>
+              <Link to="/contact">Contact Studio</Link>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <small>STUDIO</small>
-          <p>
-            Mumbai · Pune · Goa
-            <br />
-            India
-          </p>
-        </div>
-
-        <div>
-          <small>CONTACT</small>
-          <p>
-            hello@ateliernoire.in
-            <br />
-            +91 98765 43210
-          </p>
-        </div>
-
-        <div>
-          <small>FOLLOW</small>
-          <p>
-            Instagram
-            <br />
-            Pinterest
-          </p>
+        <div className="footer-bottom-bar">
+          <span>© {new Date().getFullYear()} Atelier Noire. All rights reserved.</span>
+          <span className="footer-mantra">Crafted for timeless living.</span>
+          <div className="footer-social-links">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer">Pinterest</a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </div>
         </div>
       </footer>
     </>

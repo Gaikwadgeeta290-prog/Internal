@@ -25,6 +25,31 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+
+    // Dynamic SEO Titles
+    const routeTitles = {
+      "/": "Atelier Noire — Luxury Interiors & Architecture | Mumbai · Pune · Goa",
+      "/portfolio": "Selected Architectural Portfolio — Atelier Noire",
+      "/services": "Studio Services & Turnkey Execution — Atelier Noire",
+      "/studio": "Studio Practice & Craft Philosophy — Atelier Noire",
+      "/insights": "Architectural Insights & Journal — Atelier Noire",
+      "/contact": "Reserve a Private Consultation — Atelier Noire",
+      "/begin-project": "Project Scope & Investment Estimator — Atelier Noire",
+      "/admin/login": "Studio Concierge Login — Atelier Noire",
+      "/admin/dashboard": "Studio Executive Dashboard — Atelier Noire",
+    };
+
+    if (routeTitles[pathname]) {
+      document.title = routeTitles[pathname];
+    } else if (pathname.startsWith("/portfolio/")) {
+      document.title = "Architectural Case Study — Atelier Noire";
+    } else if (pathname.startsWith("/services/")) {
+      document.title = "Practice Area — Atelier Noire";
+    } else if (pathname.startsWith("/insights/")) {
+      document.title = "Design Editorial — Atelier Noire";
+    } else {
+      document.title = "Atelier Noire — Luxury Interiors & Architecture";
+    }
   }, [pathname]);
 
   useEffect(() => {

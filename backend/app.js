@@ -295,7 +295,11 @@ async function initialize() {
   if (!databaseReady) {
     databaseReady = ensureDatabase()
       .then(seedAdmin)
-      .then(seedProjects);
+      .then(seedProjects)
+      .catch((err) => {
+        databaseReady = null;
+        throw err;
+      });
   }
   return databaseReady;
 }
@@ -827,15 +831,17 @@ app.use((error, _req, res, _next) => {
 export { app, initialize };
 
 if (process.env.VERCEL !== "1") {
-  initialize()
-    .then(() => {
-      app.listen(PORT, () => {
-        console.log(`Atelier Noire backend: http://localhost:${PORT}`);
-        console.log(`Health check: http://localhost:${PORT}/api/health`);
+  app.listen(PORT, () => {
+    console.log(`Atelier Noire backend: http://localhost:${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+    initialize()
+      .then(() => {
+        console.log("Database initialized successfully.");
+      })
+      .catch((error) => {
+        console.warn("\n[WARNING] Database connection pending: " + error.message);
+        console.warn("Please configure your DB_PASSWORD and DB credentials in 'backend/.env'.");
+        console.warn("The backend server is running and will connect once credentials are configured.\n");
       });
-    })
-    .catch((error) => {
-      console.error("Backend startup failed:", error);
-      process.exitCode = 1;
-    });
+  });
 }

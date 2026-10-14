@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { Layout, Reveal } from "../components/Layout";
 import ProjectCard from "../components/ProjectCard";
+import Lightbox from "../components/Lightbox";
 import { projects } from "../data/content";
 
 const categories = ["All", "Living", "Bedroom", "Kitchen", "Dining"];
@@ -17,6 +18,8 @@ export default function Portfolio() {
   const [yearFilter, setYearFilter] = useState("All years");
   const [dbProjects, setDbProjects] = useState([]);
   const [showMore, setShowMore] = useState(false);
+  const [lightboxProject, setLightboxProject] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     fetch("/api/projects").then(r => r.ok ? r.json() : Promise.reject()).then(data => {
@@ -48,6 +51,23 @@ export default function Portfolio() {
   }), [visibleProjects, sortOrder]);
   const displayedProjects = showMore ? sortedProjects : sortedProjects.slice(0, 12);
   const hero = allProjects[2] || projects[0];
+
+  const handleOpenLightbox = (project, idx) => {
+    setLightboxProject(project);
+    setLightboxIndex(idx);
+  };
+
+  const handleNextLightbox = () => {
+    const nextIdx = (lightboxIndex + 1) % displayedProjects.length;
+    setLightboxIndex(nextIdx);
+    setLightboxProject(displayedProjects[nextIdx]);
+  };
+
+  const handlePrevLightbox = () => {
+    const prevIdx = (lightboxIndex - 1 + displayedProjects.length) % displayedProjects.length;
+    setLightboxIndex(prevIdx);
+    setLightboxProject(displayedProjects[prevIdx]);
+  };
 
   return (
     <Layout>
@@ -112,7 +132,7 @@ export default function Portfolio() {
               key={project.id}
               p={project}
               index={index}
-              onOpen={() => navigate(`/portfolio/${project.databaseId ? `db-${project.databaseId}` : project.id}`)}
+              onOpen={(p, idx) => handleOpenLightbox(p, idx !== undefined ? idx : index)}
             />
           ))}
         </div>
@@ -163,6 +183,19 @@ export default function Portfolio() {
           </Link>
         </Reveal>
       </section>
+
+      {/* Fullscreen High-Resolution Lightbox */}
+      <Lightbox
+        project={lightboxProject}
+        currentIndex={lightboxIndex}
+        total={displayedProjects.length}
+        onClose={() => setLightboxProject(null)}
+        onPrev={handlePrevLightbox}
+        onNext={handleNextLightbox}
+        onSelectImage={(imgUrl) => {
+          setLightboxProject(prev => prev ? { ...prev, activeImage: imgUrl } : null);
+        }}
+      />
     </Layout>
   );
 }

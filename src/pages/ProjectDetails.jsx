@@ -1,10 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize2, Ruler, Clock, Layers, Sparkles, Compass, Eye } from "lucide-react";
 
 import { projects } from "../data/content";
 import { Layout, Reveal } from "../components/Layout";
 import MediaCarousel from "../components/MediaCarousel";
+import Lightbox from "../components/Lightbox";
+import PanoramicViewer3D from "../components/PanoramicViewer3D";
 
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -43,10 +45,28 @@ export default function ProjectDetails() {
   const next = projects[(Math.max(index, 0) + 1) % projects.length];
   const previous = projects[(Math.max(index, 0) - 1 + projects.length) % projects.length];
 
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [panoramaOpen, setPanoramaOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   const gallery =
     project.gallery?.length
       ? project.gallery
-      : [project.image, project.secondary];
+      : [project.image, project.secondary].filter(Boolean);
+
+  const currentGalleryProject = {
+    ...project,
+    activeImage: gallery[activeImageIndex] || gallery[0],
+    gallery,
+  };
+
+  const handleNextImage = () => {
+    setActiveImageIndex((prev) => (prev + 1) % gallery.length);
+  };
+
+  const handlePrevImage = () => {
+    setActiveImageIndex((prev) => (prev - 1 + gallery.length) % gallery.length);
+  };
 
   return (
     <Layout>
@@ -54,10 +74,11 @@ export default function ProjectDetails() {
         <MediaCarousel
           images={gallery}
           alt={project.title}
-          interval={2000}
-          fit="contain"
+          interval={3000}
+          fit="cover"
           className="project-detail-carousel"
         />
+        <div className="project-detail-hero-shade" />
 
         <div className="project-detail-hero-copy">
           <span>
@@ -82,26 +103,64 @@ export default function ProjectDetails() {
 
       <section className="case-intro project-specific-intro">
         <Reveal>
-          <div>
-            <span className="eyebrow">
-              {project.category} · {project.style}
-            </span>
+          <div className="case-intro-grid">
+            <div className="case-intro-main">
+              <span className="eyebrow">
+                <Sparkles size={12} className="eyebrow-icon" />
+                {project.category} · {project.style} ARCHITECTURE
+              </span>
 
-            <h2>
-              {project.detailHeading ||
-                project.story}
-            </h2>
-          </div>
+              <h2>
+                {project.detailHeading ||
+                  project.story}
+              </h2>
 
-          <div className="case-intro-copy">
-            <p>
-              {project.detailDescription ||
-                project.story}
-            </p>
+              <p className="case-intro-lead">
+                {project.detailDescription ||
+                  project.story}
+              </p>
 
-            <p>
-              {project.story}
-            </p>
+              <p className="case-intro-sub">
+                {project.story}
+              </p>
+            </div>
+
+            {/* Architectural Specifications Card */}
+            <div className="case-spec-card">
+              <span className="spec-card-title">PROJECT SPECIFICATIONS</span>
+              <div className="spec-item-row">
+                <small>LOCATION & YEAR</small>
+                <strong>{project.location || "India"} · {project.year || "2026"}</strong>
+              </div>
+              <div className="spec-item-row">
+                <small>TYPOLOGY & STYLE</small>
+                <strong>{project.category} Interior · {project.style}</strong>
+              </div>
+              <div className="spec-item-row">
+                <small>MATERIAL PALETTE</small>
+                <p>{project.materials || "Walnut, honed travertine, unlacquered brass and washed linen."}</p>
+              </div>
+              <div className="spec-item-row">
+                <small>SCOPE OF WORK</small>
+                <p>{project.scope || "Spatial architecture, custom joinery, lighting plan and curation."}</p>
+              </div>
+              <div className="spec-card-actions">
+                <button
+                  type="button"
+                  className="pill dark spec-panorama-btn"
+                  onClick={() => setPanoramaOpen(true)}
+                >
+                  <Compass size={14} /> 360° Walkthrough
+                </button>
+                <button
+                  type="button"
+                  className="pill light spec-gallery-btn"
+                  onClick={() => setLightboxOpen(true)}
+                >
+                  <Maximize2 size={14} /> Gallery ({gallery.length})
+                </button>
+              </div>
+            </div>
           </div>
         </Reveal>
       </section>
@@ -112,10 +171,18 @@ export default function ProjectDetails() {
             <MediaCarousel
               images={gallery}
               alt={`${project.title} interior`}
-              interval={2000}
-              fit="contain"
+              interval={3000}
+              fit="cover"
               className="case-gallery-carousel single-gallery"
             />
+            <button
+              type="button"
+              className="gallery-lightbox-trigger"
+              onClick={() => setLightboxOpen(true)}
+              aria-label="Open gallery in fullscreen lightbox"
+            >
+              <Maximize2 size={14} /> Fullscreen Lightbox
+            </button>
           </div>
         </Reveal>
 
@@ -206,6 +273,28 @@ export default function ProjectDetails() {
           Previous project · {previous.title}
         </Link>
       </section>
+
+      {/* Fullscreen High-Resolution Lightbox for Project Gallery */}
+      {lightboxOpen && (
+        <Lightbox
+          project={currentGalleryProject}
+          currentIndex={activeImageIndex}
+          total={gallery.length}
+          onClose={() => setLightboxOpen(false)}
+          onPrev={handlePrevImage}
+          onNext={handleNextImage}
+          onSelectImage={(imgUrl) => {
+            const idx = gallery.indexOf(imgUrl);
+            if (idx !== -1) setActiveImageIndex(idx);
+          }}
+        />
+      )}
+
+      {/* Interactive 3D 360 Panoramic Room Walkthrough */}
+      <PanoramicViewer3D
+        isOpen={panoramaOpen}
+        onClose={() => setPanoramaOpen(false)}
+      />
     </Layout>
   );
 }
