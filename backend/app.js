@@ -786,26 +786,126 @@ app.post("/api/consultations", publicFormRateLimit, async (req,res)=>{
 
     await pool.query("INSERT INTO analytics_events (event_type,page_path) VALUES (?,?)", ["consultation_booking", "/contact"]);
     const ref=`CON-${String(result.insertId).padStart(5,"0")}`;
-    const userText=`Hello ${name},\n\nYour Atelier Noire consultation request (${ref}) has been received.\nRequested date: ${date}\nRequested time: ${time}\nMode: ${mode}\n\nOur studio will confirm the appointment with you.\n\nAtelier Noire`;
-    const adminText=`New consultation request\nReference: ${ref}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nMode: ${mode}`;
 
-    const mail=await notifyEmails({
-      userEmail:email,
-      subject:`Atelier Noire consultation request received (${ref})`,
+    // 1. Dual Message: Formatted Message for User / Client
+    const userText = `Dear ${name},\n\nThank you for reaching out to Atelier Noire Interiors & Architecture.\n\nYour request for a private design consultation has been successfully logged:\n\n• Booking Reference: ${ref}\n• Preferred Date: ${date}\n• Preferred Time Window: ${time}\n• Format / Mode: ${mode}\n\nOur design leadership will review your requirements and connect with you to confirm the agenda.\n\nIf you have floor plans, architectural CAD drawings, or mood boards to share in advance, you can reply directly or message our Studio Concierge on WhatsApp at +91 93078 98468.\n\nWarm regards,\nAtelier Noire Studio\nMumbai · Pune · Goa`;
+
+    const userHtml = `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:620px;margin:0 auto;background:#faf8f5;border:1px solid #dfd8cc;padding:36px;color:#24211d;">
+        <div style="border-bottom:1px solid #dfd8cc;padding-bottom:18px;margin-bottom:24px;">
+          <h2 style="margin:0;font-size:22px;letter-spacing:0.06em;color:#1f1c19;">ATELIER NOIRE</h2>
+          <span style="font-size:10px;letter-spacing:0.18em;color:#8a8377;text-transform:uppercase;">Interior Architecture & Turnkey Execution</span>
+        </div>
+        <p style="font-size:15px;line-height:1.6;">Dear ${escapeHtml(name)},</p>
+        <p style="font-size:14px;line-height:1.7;color:#4c473f;">
+          Thank you for reserving a private spatial consultation with our design directors. Your booking details are summarized below:
+        </p>
+        <div style="background:#f1ece3;border:1px solid #d9d1c3;padding:18px 22px;margin:22px 0;border-radius:4px;">
+          <p style="margin:4px 0;font-size:13px;"><strong>Booking Reference:</strong> <span style="color:#6d403a;">${ref}</span></p>
+          <p style="margin:4px 0;font-size:13px;"><strong>Preferred Date:</strong> ${escapeHtml(date)}</p>
+          <p style="margin:4px 0;font-size:13px;"><strong>Preferred Time Window:</strong> ${escapeHtml(time)}</p>
+          <p style="margin:4px 0;font-size:13px;"><strong>Consultation Format:</strong> ${escapeHtml(mode)}</p>
+        </div>
+        <p style="font-size:13px;line-height:1.7;color:#5a544b;">
+          Our resident architects will confirm the session link or site arrival. You may also connect directly via our dedicated Studio WhatsApp concierge at <strong>+91 93078 98468</strong>.
+        </p>
+        <p style="margin-top:28px;font-size:12px;color:#8a8377;border-top:1px solid #dfd8cc;padding-top:16px;">
+          © ${new Date().getFullYear()} Atelier Noire. All rights reserved.
+        </p>
+      </div>
+    `;
+
+    // 2. Dual Message: Formatted Alert Message for Main Admin
+    const cleanPhone = phone.replace(/[^\d+]/g, "");
+    const adminWhatsAppNumber = process.env.WHATSAPP_STUDIO_NUMBER || "919307898468";
+    const adminText = `⚡ NEW PRIVATE CONSULTATION BOOKED\n\n• Reference: ${ref}\n• Client Name: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Date: ${date}\n• Time Slot: ${time}\n• Mode: ${mode}\n• Received: ${new Date().toISOString()}\n\nClient WhatsApp: https://wa.me/${cleanPhone.replace("+","")}\nAdmin Studio WhatsApp: https://wa.me/${adminWhatsAppNumber}`;
+
+    const adminHtml = `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:620px;margin:0 auto;background:#201e1a;color:#f3efe9;padding:32px;border-radius:6px;">
+        <span style="display:inline-block;background:#a99668;color:#181613;padding:4px 10px;font-size:10px;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;border-radius:2px;">New Consultation Request</span>
+        <h2 style="margin:14px 0 6px 0;font-size:24px;color:#ffffff;">${escapeHtml(name)}</h2>
+        <p style="color:#b5ad9e;font-size:13px;margin:0 0 20px 0;">Booking Ref: <strong>${ref}</strong></p>
+        
+        <table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:13px;">
+          <tr><td style="padding:8px 0;color:#9b9285;border-bottom:1px solid #332f29;">Phone</td><td style="padding:8px 0;color:#ffffff;font-weight:bold;border-bottom:1px solid #332f29;">${escapeHtml(phone)}</td></tr>
+          <tr><td style="padding:8px 0;color:#9b9285;border-bottom:1px solid #332f29;">Email</td><td style="padding:8px 0;color:#ffffff;border-bottom:1px solid #332f29;"><a href="mailto:${escapeHtml(email)}" style="color:#c5aa8b;">${escapeHtml(email)}</a></td></tr>
+          <tr><td style="padding:8px 0;color:#9b9285;border-bottom:1px solid #332f29;">Requested Date</td><td style="padding:8px 0;color:#ffffff;border-bottom:1px solid #332f29;">${escapeHtml(date)}</td></tr>
+          <tr><td style="padding:8px 0;color:#9b9285;border-bottom:1px solid #332f29;">Time Window</td><td style="padding:8px 0;color:#ffffff;border-bottom:1px solid #332f29;">${escapeHtml(time)}</td></tr>
+          <tr><td style="padding:8px 0;color:#9b9285;">Format</td><td style="padding:8px 0;color:#ffffff;">${escapeHtml(mode)}</td></tr>
+        </table>
+
+        <div style="margin-top:24px;">
+          <a href="https://wa.me/${cleanPhone.replace("+","")}?text=Hello%20${encodeURIComponent(name)},%20this%20is%20Atelier%20Noire%20regarding%20your%20consultation%20booking%20(${ref})." style="background:#25d366;color:#ffffff;padding:10px 18px;text-decoration:none;font-size:12px;font-weight:bold;border-radius:4px;display:inline-block;">Chat with Client on WhatsApp</a>
+        </div>
+      </div>
+    `;
+
+    // Trigger email notifications
+    const mail = await notifyEmails({
+      userEmail: email,
+      subject: `Atelier Noire Consultation Request Confirmed (${ref})`,
       userText,
       adminText,
-      html:`<p>Hello ${escapeHtml(name)},</p><p>Your Atelier Noire consultation request <strong>${ref}</strong> has been received.</p><p><strong>${escapeHtml(date)}</strong> · <strong>${escapeHtml(time)}</strong> · ${escapeHtml(mode)}</p><p>Our studio will confirm the appointment with you.</p>`
+      html: userHtml,
     });
 
     await pool.query(
       "UPDATE consultations SET email_sent=?,admin_notified=? WHERE id=?",
-      [mail.userSent ? 1 : 0,mail.adminSent ? 1 : 0,result.insertId]
+      [mail.userSent ? 1 : 0, mail.adminSent ? 1 : 0, result.insertId]
     );
 
-    res.status(201).json({ok:true,id:result.insertId,reference:ref,emailSent:mail.userSent,adminNotified:mail.adminSent,emailStatus:mail.userSent ? "accepted_by_smtp" : "failed_or_not_configured",message:"Consultation saved successfully. Email status is reported separately."});
+    // Pre-calculated WhatsApp dispatch URLs for client & admin
+    const clientWhatsAppMsg = `Hello Atelier Noire, I have scheduled private consultation ${ref} for ${date} at ${time} (${mode}).`;
+    const adminWhatsAppMsg = `🚨 NEW CONSULTATION LEAD:\n• Ref: ${ref}\n• Client: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Slot: ${date} at ${time}\n• Mode: ${mode}`;
+
+    const clientWhatsAppUrl = `https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(clientWhatsAppMsg)}`;
+    const adminWhatsAppUrl = `https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(adminWhatsAppMsg)}`;
+
+    res.status(201).json({
+      ok: true,
+      id: result.insertId,
+      reference: ref,
+      emailSent: mail.userSent,
+      adminNotified: mail.adminSent,
+      emailStatus: mail.userSent ? "accepted_by_smtp" : "failed_or_not_configured",
+      whatsappStudioNumber: adminWhatsAppNumber,
+      clientWhatsAppUrl,
+      adminWhatsAppUrl,
+      message: "Consultation reserved successfully. Dual notifications dispatched to admin and client."
+    });
   } catch(error){
     console.error("Create consultation error:",error?.code || "unexpected_error");
     res.status(500).json({ok:false,message:"Failed to create consultation."});
+  }
+});
+
+// Dedicated WhatsApp Lead Dispatch Webhook/API
+app.post("/api/whatsapp/notify", publicFormRateLimit, async (req, res) => {
+  try {
+    const { reference, clientName, clientPhone, date, time, mode } = req.body || {};
+    const adminWhatsApp = process.env.WHATSAPP_STUDIO_NUMBER || "919307898468";
+
+    await pool.query(
+      "INSERT INTO analytics_events (event_type, page_path, metadata) VALUES (?,?,?)",
+      [
+        "whatsapp_lead_dispatch",
+        "/contact",
+        JSON.stringify({ reference, clientName, adminWhatsApp })
+      ]
+    );
+
+    const alertText = `🚨 NEW CONSULTATION LEAD\n• Ref: ${reference || 'N/A'}\n• Client: ${clientName || 'N/A'}\n• Phone: ${clientPhone || 'N/A'}\n• Slot: ${date || 'N/A'} at ${time || 'N/A'}\n• Mode: ${mode || 'N/A'}`;
+    const directUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(alertText)}`;
+
+    res.json({
+      ok: true,
+      message: "WhatsApp notification prepared successfully.",
+      directUrl,
+      targetNumber: adminWhatsApp
+    });
+  } catch (err) {
+    console.error("WhatsApp notification error:", err);
+    res.status(500).json({ ok: false, message: "Failed to dispatch WhatsApp alert." });
   }
 });
 

@@ -7,6 +7,7 @@ import ProjectCard from "../components/ProjectCard";
 import BeforeAfterSlider from "../components/BeforeAfterSlider";
 import MaterialsShowcase from "../components/MaterialsShowcase";
 import AmbientParticles3D from "../components/AmbientParticles3D";
+import Cinematic3DReels from "../components/Cinematic3DReels";
 
 const serviceIcons = [Sofa, HomeIcon, Layers3, Palette];
 
@@ -136,19 +137,8 @@ export default function Home() {
       {/* Interactive Before & After Renovation Transformation */}
       <BeforeAfterSlider />
 
-      <section className="video-break project-video-section">
-        <video autoPlay muted loop playsInline poster={projects[0]?.image}>
-          <source src="/videos/atelier-materials.mp4" type="video/mp4" />
-        </video>
-        <div className="video-break-shade" />
-        <div>
-          <span className="eyebrow">INTERIOR · MATERIAL · MOVEMENT</span>
-          <h2>
-            See the atmosphere<br />
-            <i>before the first sketch.</i>
-          </h2>
-        </div>
-      </section>
+      {/* Interactive Cinematic 3D Reels Theatre */}
+      <Cinematic3DReels />
 
       <section className="services-home">
         <Sequence>

@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { ArrowUpRight, CheckCircle2, CalendarDays, Clock, MapPin, Mail, Phone, Send, ShieldCheck, MessageCircle } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, CalendarDays, Clock, MapPin, Mail, Phone, Send, ShieldCheck, MessageCircle, CalendarPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { Layout, Sequence, Reveal } from "../components/Layout";
+import {
+  STUDIO_WHATSAPP_NUMBER,
+  STUDIO_PHONE_DISPLAY,
+  STUDIO_PHONE_TEL,
+  STUDIO_EMAIL,
+  getWhatsAppUrl,
+  getGoogleCalendarUrl
+} from "../lib/constants";
 
 const initial = {
   name: "",
@@ -14,13 +22,29 @@ const initial = {
 
 export default function Contact() {
   const [book, setBook] = useState(initial);
-  const [status, setStatus] = useState({ state: "idle", message: "", reference: "" });
+  const [status, setStatus] = useState({
+    state: "idle",
+    message: "",
+    reference: "",
+    clientWhatsAppUrl: "",
+    adminWhatsAppUrl: "",
+    adminNotified: false,
+    emailSent: false
+  });
 
   const update = (name, value) => setBook((v) => ({ ...v, [name]: value }));
 
   const submit = async (e) => {
     e.preventDefault();
-    setStatus({ state: "loading", message: "", reference: "" });
+    setStatus({
+      state: "loading",
+      message: "",
+      reference: "",
+      clientWhatsAppUrl: "",
+      adminWhatsAppUrl: "",
+      adminNotified: false,
+      emailSent: false
+    });
 
     try {
       const r = await fetch("/api/consultations", {
@@ -31,17 +55,27 @@ export default function Contact() {
       const d = await r.json();
       if (!r.ok) throw new Error(d.message || "Unable to request consultation.");
 
-      const refId = d.reference || (d.id ? `CNS-${String(d.id).padStart(5, "0")}` : "CNS-NEW");
+      const refId = d.reference || (d.id ? `CON-${String(d.id).padStart(5, "0")}` : "CON-NEW");
+      const clientUrl = d.clientWhatsAppUrl || getWhatsAppUrl(`Hello Atelier Noire, I have scheduled private consultation ${refId} for ${book.date} at ${book.time} (${book.mode}).`);
+
       setStatus({
         state: "success",
         message: "Your private consultation has been reserved with our principal studio team.",
         reference: refId,
+        clientWhatsAppUrl: clientUrl,
+        adminWhatsAppUrl: d.adminWhatsAppUrl || "",
+        adminNotified: d.adminNotified,
+        emailSent: d.emailSent
       });
     } catch (err) {
       setStatus({
         state: "error",
-        message: err.message || "Unable to submit consultation request. Please message us on WhatsApp directly.",
+        message: err.message || "Unable to submit consultation request. Please message us on WhatsApp directly at +91 93078 98468.",
         reference: "",
+        clientWhatsAppUrl: "",
+        adminWhatsAppUrl: "",
+        adminNotified: false,
+        emailSent: false
       });
     }
   };
@@ -69,7 +103,7 @@ export default function Contact() {
               <MapPin size={14} /> Mumbai · Pune · Goa
             </span>
             <span>
-              <Mail size={14} /> hello@ateliernoire.in
+              <Mail size={14} /> {STUDIO_EMAIL}
             </span>
           </div>
         </Sequence>
@@ -86,11 +120,11 @@ export default function Contact() {
           <Sequence>
             <div>
               <span>DIRECT INQUIRIES</span>
-              <a href="mailto:hello@ateliernoire.in">hello@ateliernoire.in</a>
+              <a href={`mailto:${STUDIO_EMAIL}`}>{STUDIO_EMAIL}</a>
             </div>
             <div>
-              <span>STUDIO CONCIERGE</span>
-              <a href="tel:+919876543210">+91 98765 43210</a>
+              <span>STUDIO CONCIERGE & WHATSAPP</span>
+              <a href={`tel:${STUDIO_PHONE_TEL}`}>{STUDIO_PHONE_DISPLAY}</a>
             </div>
             <div>
               <span>STUDIO LOCATIONS</span>
@@ -135,9 +169,24 @@ export default function Contact() {
               <span className="eyebrow">CONSULTATION CONFIRMED</span>
               <h3>Booking Reference: {status.reference}</h3>
               <p>{status.message}</p>
+
+              {/* Notification routing confirmation badges */}
+              <div className="notification-status-box" style={{ background: "rgba(169, 150, 104, 0.12)", border: "1px solid rgba(169, 150, 104, 0.3)", borderRadius: "6px", padding: "14px 16px", margin: "18px 0" }}>
+                <span style={{ display: "block", fontSize: "11px", fontWeight: "600", letterSpacing: "0.08em", color: "#54462e", marginBottom: "8px" }}>
+                  DUAL NOTIFICATION ROUTING DISPATCHED:
+                </span>
+                <div style={{ display: "grid", gap: "6px", fontSize: "12px", color: "#423d35" }}>
+                  <div>✓ <strong>Main Studio Admin:</strong> Logged in dashboard & routed to Studio WhatsApp (+91 93078 98468)</div>
+                  <div>✓ <strong>Client Confirmation:</strong> Prepared for {book.name} ({book.email})</div>
+                </div>
+              </div>
+
               <div className="success-details">
                 <p>
                   <strong>Client:</strong> {book.name}
+                </p>
+                <p>
+                  <strong>Phone / WhatsApp:</strong> {book.phone}
                 </p>
                 <p>
                   <strong>Preferred Date & Time:</strong> {book.date} at {book.time}
@@ -146,21 +195,38 @@ export default function Contact() {
                   <strong>Consultation Mode:</strong> {book.mode}
                 </p>
               </div>
+
               <div className="success-actions">
                 <a
-                  href={`https://wa.me/919876543210?text=Hello%20Atelier%20Noire,%20I%20have%20scheduled%20consultation%20${status.reference}%20for%20${book.date}%20at%20${book.time}%20(${book.mode}).`}
+                  href={status.clientWhatsAppUrl || getWhatsAppUrl(`Hello Atelier Noire, I have scheduled consultation ${status.reference} for ${book.date} at ${book.time} (${book.mode}).`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pill dark"
                 >
-                  <MessageCircle size={15} /> Confirm on WhatsApp
+                  <MessageCircle size={15} /> Confirm on WhatsApp Studio
                 </a>
+
+                <a
+                  href={getGoogleCalendarUrl({
+                    title: `Atelier Noire Private Consultation (${status.reference})`,
+                    description: `Private interior architecture consultation with Atelier Noire leadership. Mode: ${book.mode}.`,
+                    date: book.date,
+                    time: book.time,
+                    location: book.mode
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pill outline"
+                >
+                  <CalendarPlus size={15} /> Add to Calendar
+                </a>
+
                 <button
                   type="button"
                   className="pill outline"
                   onClick={() => {
                     setBook(initial);
-                    setStatus({ state: "idle", message: "", reference: "" });
+                    setStatus({ state: "idle", message: "", reference: "", clientWhatsAppUrl: "", adminWhatsAppUrl: "", adminNotified: false, emailSent: false });
                   }}
                 >
                   Schedule Another Slot
@@ -204,7 +270,7 @@ export default function Contact() {
                   <input
                     value={book.phone}
                     onChange={(e) => update("phone", e.target.value)}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 93078 98468"
                     required
                   />
                 </label>
@@ -267,7 +333,7 @@ export default function Contact() {
                 </button>
 
                 <a
-                  href="https://wa.me/919876543210?text=Hello%20Atelier%20Noire,%20I%20would%20like%20to%20request%20a%20private%20consultation%20with%20your%20design%20directors."
+                  href={getWhatsAppUrl("Hello Atelier Noire, I would like to request a private consultation with your design directors.")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pill outline"

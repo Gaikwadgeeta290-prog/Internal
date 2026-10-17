@@ -13,6 +13,7 @@ import {
   ShieldCheck, 
   Layers 
 } from "lucide-react";
+import { getWhatsAppUrl } from "../lib/constants";
 
 const TYPOLOGIES = [
   {
@@ -322,7 +323,7 @@ export default function EstimateQuiz({ onApplyEstimate }) {
             </button>
 
             <a
-              href={`https://wa.me/919876543210?text=${whatsappMessage}`}
+              href={getWhatsAppUrl(whatsappMessage)}
               target="_blank"
               rel="noopener noreferrer"
               className="pill outline"

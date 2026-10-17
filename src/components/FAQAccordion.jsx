@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, MessageCircle, ArrowUpRight } from "lucide-react";
 import { faqs } from "../data/content";
+import { getWhatsAppUrl } from "../lib/constants";
 
 export default function FAQAccordion({ limit, showCategories = true, title = "Frequently Asked Questions", subtitle = "Clarity on our studio process, timelines, turnkey execution, and design engagements." }) {
   const [activeId, setActiveId] = useState(faqs[0]?.id || null);
@@ -89,7 +90,7 @@ export default function FAQAccordion({ limit, showCategories = true, title = "Fr
         </div>
         <div className="faq-prompt-actions">
           <a
-            href="https://wa.me/919876543210?text=Hello%20Atelier%20Noire,%20I%20have%20an%20architectural%20inquiry%20regarding%20my%20residence."
+            href={getWhatsAppUrl("Hello Atelier Noire, I have an architectural inquiry regarding my residence.")}
             target="_blank"
             rel="noopener noreferrer"
             className="pill outline"

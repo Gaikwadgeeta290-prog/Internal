@@ -2,6 +2,13 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { ArrowUpRight, Menu, X, MessageSquare, Phone } from "lucide-react";
+import {
+  STUDIO_WHATSAPP_NUMBER,
+  STUDIO_PHONE_DISPLAY,
+  STUDIO_PHONE_TEL,
+  STUDIO_EMAIL,
+  getWhatsAppUrl
+} from "../lib/constants";
 
 const nav = [
   ["/", "Home"],
@@ -269,7 +276,7 @@ export function Layout({ children }) {
       {/* Floating Quick Action Buttons */}
       <div className="floating-actions" aria-label="Quick contact actions">
         <a
-          href="https://wa.me/919876543210?text=Hi%20Atelier%20Noire%2C%20I%20would%20like%20to%20enquire%20about%20interior%20architecture%20and%20design%20services."
+          href={getWhatsAppUrl("Hi Atelier Noire, I would like to enquire about interior architecture and design services.")}
           target="_blank"
           rel="noopener noreferrer"
           className="float-btn float-whatsapp"
@@ -279,9 +286,9 @@ export function Layout({ children }) {
           <span className="float-badge">Chat with Studio</span>
         </a>
         <a
-          href="tel:+919876543210"
+          href={`tel:${STUDIO_PHONE_TEL}`}
           className="float-btn float-phone"
-          aria-label="Call studio"
+          aria-label={`Call studio at ${STUDIO_PHONE_DISPLAY}`}
         >
           <Phone size={18} />
         </a>
@@ -324,12 +331,12 @@ export function Layout({ children }) {
           <div className="footer-col">
             <small>DIRECT INQUIRIES</small>
             <p>
-              <a href="mailto:hello@ateliernoire.in" className="footer-link">
-                hello@ateliernoire.in
+              <a href={`mailto:${STUDIO_EMAIL}`} className="footer-link">
+                {STUDIO_EMAIL}
               </a>
               <br />
-              <a href="tel:+919876543210" className="footer-link">
-                +91 98765 43210
+              <a href={`tel:${STUDIO_PHONE_TEL}`} className="footer-link">
+                {STUDIO_PHONE_DISPLAY}
               </a>
             </p>
             <p className="footer-hours">

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Layout, Sequence } from "../components/Layout";
 import EstimateQuiz from "../components/EstimateQuiz";
 import FAQAccordion from "../components/FAQAccordion";
+import { STUDIO_WHATSAPP_NUMBER, STUDIO_PHONE_DISPLAY, getWhatsAppUrl } from "../lib/constants";
 
 const initial = {
   name: "",
@@ -179,12 +180,12 @@ export default function BeginProject() {
                   </div>
                   <div className="success-actions">
                     <a
-                      href={`https://wa.me/919876543210?text=Hello%20Atelier%20Noire,%20I%20have%20submitted%20project%20brief%20${status.reference}%20for%20${encodeURIComponent(form.name)}.`}
+                      href={getWhatsAppUrl(`Hello Atelier Noire, I have submitted project brief ${status.reference} for ${form.name}.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="pill dark"
                     >
-                      <MessageCircle size={15} /> Confirm on WhatsApp
+                      <MessageCircle size={15} /> Confirm on WhatsApp Studio
                     </a>
                     <button
                       type="button"
@@ -230,7 +231,7 @@ export default function BeginProject() {
                         name="phone"
                         value={form.phone}
                         onChange={update}
-                        placeholder="+91 98765 43210"
+                        placeholder="+91 93078 98468"
                         required
                       />
                     </label>
@@ -328,12 +329,12 @@ export default function BeginProject() {
                     </button>
 
                     <a
-                      href="https://wa.me/919876543210?text=Hello%20Atelier%20Noire,%20I%20would%20like%20to%20discuss%20a%20new%20interior%20architecture%20commission."
+                      href={getWhatsAppUrl("Hello Atelier Noire, I would like to discuss a new interior architecture commission.")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="pill outline"
                     >
-                      <MessageCircle size={15} /> Discuss on WhatsApp
+                      <MessageCircle size={15} /> Discuss on WhatsApp Studio
                     </a>
                   </div>
                 </form>
