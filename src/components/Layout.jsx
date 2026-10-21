@@ -1,7 +1,8 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+﻿import { useState, useEffect, useLayoutEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { ArrowUpRight, Menu, X, MessageSquare, Phone } from "lucide-react";
+import CallDetailsPopup from "./CallDetailsPopup";
 import {
   STUDIO_WHATSAPP_NUMBER,
   STUDIO_PHONE_DISPLAY,
@@ -18,7 +19,6 @@ const nav = [
   ["/insights", "Insights"],
   ["/contact", "Contact"],
 ];
-
 const ease = [0.22, 1, 0.36, 1];
 
 export function Reveal({
@@ -108,6 +108,7 @@ export function Magnetic({ children, to, className = "" }) {
 }
 
 export function Layout({ children }) {
+  const [showCallDetails, setShowCallDetails] = useState(false);
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const { scrollYProgress } = useScroll();
@@ -285,15 +286,18 @@ export function Layout({ children }) {
           <MessageSquare size={19} />
           <span className="float-badge">Chat with Studio</span>
         </a>
-        <a
-          href={`tel:${STUDIO_PHONE_TEL}`}
-          className="float-btn float-phone"
-          aria-label={`Call studio at ${STUDIO_PHONE_DISPLAY}`}
-        >
-          <Phone size={18} />
-        </a>
+        <button
+  type="button"
+  className="float-btn float-phone-btn"
+  aria-label="View studio phone details"
+  onClick={() => setShowCallDetails(true)}
+>
+  <Phone size={18} />
+</button>
       </div>
-
+      {showCallDetails && (
+        <CallDetailsPopup onClose={() => setShowCallDetails(false)} />
+      )}
       <footer>
         <div className="footer-main">
           <div className="footer-brand">
@@ -324,7 +328,7 @@ export function Layout({ children }) {
             <p>
               <strong>Pune & Goa</strong>
               <br />
-              Koregaon Park · Panaji
+              Koregaon Park Â· Panaji
             </p>
           </div>
 
@@ -340,9 +344,9 @@ export function Layout({ children }) {
               </a>
             </p>
             <p className="footer-hours">
-              Monday – Saturday
+              Monday â€“ Saturday
               <br />
-              10:00 – 19:00 IST
+              10:00 â€“ 19:00 IST
             </p>
           </div>
 
@@ -359,7 +363,7 @@ export function Layout({ children }) {
         </div>
 
         <div className="footer-bottom-bar">
-          <span>© {new Date().getFullYear()} Atelier Noire. All rights reserved.</span>
+          <span>Â© {new Date().getFullYear()} Atelier Noire. All rights reserved.</span>
           <span className="footer-mantra">Crafted for timeless living.</span>
           <div className="footer-social-links">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
@@ -371,3 +375,5 @@ export function Layout({ children }) {
     </>
   );
 }
+
+
