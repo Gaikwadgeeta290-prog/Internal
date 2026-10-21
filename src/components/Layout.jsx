@@ -1,8 +1,9 @@
-﻿import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { ArrowUpRight, Menu, X, MessageSquare, Phone } from "lucide-react";
 import CallDetailsPopup from "./CallDetailsPopup";
+import LeadCapturePopup from "./LeadCapturePopup";
 import {
   STUDIO_WHATSAPP_NUMBER,
   STUDIO_PHONE_DISPLAY,
@@ -19,6 +20,7 @@ const nav = [
   ["/insights", "Insights"],
   ["/contact", "Contact"],
 ];
+
 const ease = [0.22, 1, 0.36, 1];
 
 export function Reveal({
@@ -109,6 +111,7 @@ export function Magnetic({ children, to, className = "" }) {
 
 export function Layout({ children }) {
   const [showCallDetails, setShowCallDetails] = useState(false);
+  const [showLeadPopup, setShowLeadPopup] = useState(false);
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const { scrollYProgress } = useScroll();
@@ -298,6 +301,9 @@ export function Layout({ children }) {
       {showCallDetails && (
         <CallDetailsPopup onClose={() => setShowCallDetails(false)} />
       )}
+      {showLeadPopup && (
+  <LeadCapturePopup onClose={() => setShowLeadPopup(false)} />
+)}
       <footer>
         <div className="footer-main">
           <div className="footer-brand">
@@ -328,7 +334,7 @@ export function Layout({ children }) {
             <p>
               <strong>Pune & Goa</strong>
               <br />
-              Koregaon Park Â· Panaji
+              Koregaon Park · Panaji
             </p>
           </div>
 
@@ -363,7 +369,7 @@ export function Layout({ children }) {
         </div>
 
         <div className="footer-bottom-bar">
-          <span>Â© {new Date().getFullYear()} Atelier Noire. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Atelier Noire. All rights reserved.</span>
           <span className="footer-mantra">Crafted for timeless living.</span>
           <div className="footer-social-links">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
