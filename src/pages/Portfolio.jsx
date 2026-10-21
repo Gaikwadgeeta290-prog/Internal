@@ -150,7 +150,7 @@ export default function Portfolio() {
           poster={hero.image}
         >
           <source
-            src="/videos/atelier-materials.mp4"
+            src="/videos/Master_Suite (2).mp4"
             type="video/mp4"
           />
         </video>

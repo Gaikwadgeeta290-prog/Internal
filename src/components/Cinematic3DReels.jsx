@@ -8,7 +8,7 @@ const REELS = [
     id: "living",
     title: "Living Pavilion",
     subtitle: "Spatial Volume & Daylight Trajectory",
-    video: "/videos/atelier-living-reel.mp4",
+    video: "/videos/Living_Pavilion.mp4",
     spec: "Double-height glazing · Navona Travertine · Concealed HVAC coves",
     duration: "4K 3D Walkthrough"
   },
@@ -16,7 +16,7 @@ const REELS = [
     id: "bedroom",
     title: "Master Suite",
     subtitle: "Circadian Lighting & Acoustic Serenity",
-    video: "/videos/atelier-bedroom-reel.mp4",
+    video: "/videos/Master-Suite.mp4",
     spec: "Fluted European oak · Bouclé wall panels · 2400K Warm circadian dimming",
     duration: "Atmospheric 3D Reel"
   },
@@ -24,7 +24,7 @@ const REELS = [
     id: "kitchen",
     title: "Gourmet Culinary",
     subtitle: "Monolithic Quartzite & Concealed Pocket Doors",
-    video: "/videos/atelier-kitchen-reel.mp4",
+    video: "/videos/Gourmet_Culinary.mp4",
     spec: "Honed quartzite island · Integrated Miele appliances · Zero-reveal millwork",
     duration: "Precision Joinery 3D"
   },
@@ -32,7 +32,7 @@ const REELS = [
     id: "materials",
     title: "Tactile Provenance",
     subtitle: "Quarry-Direct Stone & Hand-Troweled Plaster",
-    video: "/videos/atelier-materials.mp4",
+    video: "/videos/Tactile_Provenance.mp4",
     spec: "Calacatta Viola marble · Venetian lime plaster · Solid patinated brass",
     duration: "Material Micro-Reel"
   }
